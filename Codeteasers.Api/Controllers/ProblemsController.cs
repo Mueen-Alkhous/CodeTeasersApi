@@ -1,8 +1,9 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Entities;
+using Web.Api.Entities.Creation;
 
 namespace Web.Api.Controllers
 {
@@ -11,10 +12,12 @@ namespace Web.Api.Controllers
     public class ProblemsController : ControllerBase
     {
         private readonly ProblemRepository _repository;
+        private readonly IMapper _mapper;
 
-        public ProblemsController(ProblemRepository repository)
+        public ProblemsController(ProblemRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -53,6 +56,12 @@ namespace Web.Api.Controllers
 
             return CreatedAtAction(nameof(Get), newProblem.Id, newProblem);
 
+
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult> Put(Guid id, [FromBody] ProblemForCreation problem)
+        {
 
         }
 

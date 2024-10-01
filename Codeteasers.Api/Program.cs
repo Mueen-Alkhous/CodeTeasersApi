@@ -26,6 +26,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UsersService>();
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Entities;
+using Web.Api.Entities.Creation;
 using Web.Api.Services;
 
 namespace Web.Api.Controllers

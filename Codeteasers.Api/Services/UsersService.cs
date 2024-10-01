@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Web.Api.Entities;
+using Web.Api.Entities.Creation;
 
 namespace Web.Api.Services;
 
