@@ -1,21 +1,27 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Entities.Creation;
-using Web.Api.Services;
+using Presentation.Entities.Creation;
+using Presentation.Services;
 
-namespace Web.Api.Controllers
+namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly UserRepository _repositoy;
-        private readonly UsersService _service;
+        private readonly IMapper _mapper;
+        private readonly UserService _service;
 
-        public UsersController(UserRepository repositoy, UsersService service)
+        public UsersController(
+            UserRepository repositoy,
+            IMapper mapper,
+            UserService service)
         {
             _repositoy = repositoy;
+            _mapper = mapper;
             _service = service;
         }
 
@@ -39,10 +45,11 @@ namespace Web.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] UserForCreation userForCreation)
         {
+
             var newUser = _service.CreateUserWithStatus(userForCreation);
             _repositoy.AddUser(newUser);
             await _repositoy.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), newUser.Id, newUser);
+            return CreatedAtAction(nameof(Get), new { id = newUser.Id }, newUser);
         }
 
         // PUT api/user/5
@@ -50,10 +57,16 @@ namespace Web.Api.Controllers
         public async Task<ActionResult> Put(Guid id, [FromBody] UserForCreation userForCreation)
         {
             var user = await _repositoy.GetUserWithStatusAsync(id);
+
+            if (user == null)
+                return NotFound();
+
             user.Username = userForCreation.Username;
             user.Password = userForCreation.Password;
             user.Email = userForCreation.Email;
             _repositoy.UpdateUser(user);
+            await _repositoy.SaveChangesAsync();
+
             return NoContent();
         }
 
@@ -62,6 +75,10 @@ namespace Web.Api.Controllers
         public async Task<ActionResult> Delete(Guid id)
         {
             var user = await _repositoy.GetUserWithStatusAsync(id);
+
+            if (user == null)
+                return NotFound();
+
             _repositoy.DeleteUser(user);
             await _repositoy.SaveChangesAsync();
             return NoContent();

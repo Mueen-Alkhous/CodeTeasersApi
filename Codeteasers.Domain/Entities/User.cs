@@ -25,4 +25,9 @@ public class User : BaseEntity
     public string Password { get; set; } = null!;
 
     public ICollection<Submission> Submissions { get; set; } = [];
+
+    public User()
+    {
+        var userStatus = new UserStatus();
+    }
 }

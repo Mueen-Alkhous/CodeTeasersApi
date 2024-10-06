@@ -1,9 +1,9 @@
 ﻿using Domain.Entities;
-using Web.Api.Entities.Creation;
+using Presentation.Entities.Creation;
 
-namespace Web.Api.Services;
+namespace Presentation.Services;
 
-public class UsersService
+public class UserService
 {
     public User CreateUserWithStatus(UserForCreation user)
     {
@@ -22,6 +22,5 @@ public class UsersService
             Password = user.Password,
         };
         return newUser;
-
     }
 }

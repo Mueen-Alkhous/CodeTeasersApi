@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Api", "Codeteasers.Api\Web.Api.csproj", "{B3C42CFF-39E8-40C3-A8EB-96F07141ECCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation", "Codeteasers.Api\Presentation.csproj", "{B3C42CFF-39E8-40C3-A8EB-96F07141ECCA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Codeteasers.Domain\Domain.csproj", "{1D87F477-4D18-43F5-88BB-87E9C35A86A1}"
 EndProject

@@ -3,9 +3,11 @@ using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Entities.Creation;
+using Presentation.Entities.Creation;
+using Presentation.Entities.View;
+using Presentation.Services;
 
-namespace Web.Api.Controllers
+namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -13,56 +15,77 @@ namespace Web.Api.Controllers
     {
         private readonly ProblemRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ProblemService _service;
 
-        public ProblemsController(ProblemRepository repository, IMapper mapper)
+        public ProblemsController(ProblemRepository repository, IMapper mapper, ProblemService service)
         {
             _repository = repository;
             _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Problem>>> Get()
         {
             var problems = await _repository.GetProblemsWithCategoryAsync();
-            return Ok(problems);
+            var problemsToReture = _mapper.Map<ProblemForView>(problems);
+            return Ok(problemsToReture);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<Problem?>> Get(Guid id)
+        public async Task<ActionResult<Problem>> Get(Guid id)
         {
             var problem = await _repository.GetProblemWithCategoryAsync(id);
-            return Ok(problem);
+
+            if (problem == null)
+                return NotFound();
+
+            var problemToReturn = _mapper.Map<ProblemForView>(problem);
+            return Ok(problemToReturn);
         }
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] ProblemForCreation problem)
         {
-            var problemId = Guid.NewGuid();
-            string descriptionFolder = @"D:\CodeTeasers\Problems\Descriptions";
-            string descriptionFile = Path.Combine(descriptionFolder, $"{problemId}.md");
-            await System.IO.File.WriteAllTextAsync(descriptionFile, problem.Description);
+            var newProblem = await _service.CreateProblemAsync(problem);
 
-            string templateFolder = @"D:\CodeTeasers\Problems\Templates";
-            string templateFile = Path.Combine(templateFolder, $"{problemId}");
-            await System.IO.File.WriteAllTextAsync(templateFile, problem.Template);
+            var problemToReturn = _mapper.Map<ProblemForView>(newProblem);
 
-            Problem newProblem = new Problem()
-            {
-                Id = problemId,
-                Level = problem.Level,
-                Score = problem.Score,
-                Categories = problem.Categories,
-            };
-
-            return CreatedAtAction(nameof(Get), newProblem.Id, newProblem);
-
+            return CreatedAtAction(nameof(Get), new { id = newProblem.Id }, problemToReturn);
 
         }
 
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Put(Guid id, [FromBody] ProblemForCreation problem)
         {
+            var problemToUpdate = await _repository.GetProblemWithCategoryAsync(id);
 
+            if (problemToUpdate == null)
+                return NotFound();
+
+            await _service.UpdateProblemAsync(id, problem);
+
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult> Delete(Guid id)
+        {
+            var problem = await _repository.GetProblemWithCategoryAsync(id);
+
+            if (problem == null)
+                return NotFound();
+
+            problem.IsDeleted = true;
+
+            foreach (var submission in problem.Submissions)
+                submission.IsDeleted = true;
+
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
         }
 
 

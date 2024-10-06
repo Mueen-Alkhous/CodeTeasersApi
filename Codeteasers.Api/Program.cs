@@ -3,7 +3,7 @@ using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Web.Api.Services;
+using Presentation.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +24,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CodeTeasersConnectionString")));
 
 builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProblemService>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 

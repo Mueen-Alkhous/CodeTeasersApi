@@ -25,4 +25,9 @@ public class ProblemRepository
     {
         problem.Categories.AddRange(categories);
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

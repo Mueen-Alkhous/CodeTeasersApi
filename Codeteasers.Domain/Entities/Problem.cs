@@ -13,20 +13,14 @@ public class Problem : BaseEntity
     [Required]
     public string DescriptionPath { get; set; }
 
-    [Required, NotMapped]
-    public FileInfo Description { get; set; }
 
     [Required]
     public string TestPath { get; set; }
 
-    [Required, NotMapped]
-    public FileInfo Test { get; set; }
 
     [Required]
     public string TemplatePath { get; set; }
 
-    [Required, NotMapped]
-    public FileInfo Template { get; set; }
 
     [Required]
     public string Level { get; set; } = string.Empty;
@@ -41,12 +35,9 @@ public class Problem : BaseEntity
     public Problem()
     {
         DescriptionPath = $@"D:\CodeTeasers\Problems\Descriptions\{Id}";
-        Description = new FileInfo(DescriptionPath);
 
         TestPath = $@"D:\CodeTeasers\Problems\Tests\{Id}";
-        Test = new FileInfo(TestPath);
 
         TemplatePath = $@"D:\CodeTeasers\Problems\Templates\{Id}";
-        Template = new FileInfo(TemplatePath);
     }
 }
