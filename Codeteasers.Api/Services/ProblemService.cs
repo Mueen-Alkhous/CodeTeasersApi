@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Infrastructure.Repositories;
 using Presentation.Entities.Creation;
-using Presentation.Entities.View;
 
 namespace Presentation.Services;
 
@@ -17,7 +15,6 @@ public class ProblemService
 
     public async Task<Problem> CreateProblemAsync(ProblemForCreation problem)
     {
-
         Problem newProblem = new Problem()
         {
             Level = problem.Level,
@@ -32,7 +29,7 @@ public class ProblemService
         return newProblem;
     }
 
-    public async Task UpdateProblemAsync(Guid id, ProblemForCreation problem)
+    public async Task  UpdateProblemAsync(Guid id, ProblemForCreation problem)
     {
         var problemToUpdate = await _repository.GetProblemWithCategoryAsync(id);
 
@@ -43,7 +40,6 @@ public class ProblemService
         await System.IO.File.WriteAllTextAsync(problemToUpdate.DescriptionPath, problem.Description);
         await System.IO.File.WriteAllTextAsync(problemToUpdate.TemplatePath, problem.Template);
         await System.IO.File.WriteAllTextAsync(problemToUpdate.TestPath, problem.Test);
-
     }
 
 }

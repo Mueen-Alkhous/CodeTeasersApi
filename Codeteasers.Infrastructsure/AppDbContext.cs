@@ -28,5 +28,17 @@ public class AppDbContext : DbContext
                     .HasOne(u => u.UserStatus)
                     .WithOne(us => us.User)
                     .HasForeignKey<UserStatus>(us => us.UserId);
+
+        modelBuilder.Entity<Problem>()
+                    .HasIndex(p => p.Title)
+                    .IsUnique();
+
+        modelBuilder.Entity<User>()
+                    .HasIndex(p => p.Username)
+                    .IsUnique();
+
+        modelBuilder.Entity<User>()
+                    .HasIndex(p => p.Email)
+                    .IsUnique();
     }
 }

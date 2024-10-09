@@ -14,17 +14,38 @@ public class UserRepository
 
     public async Task<List<User>> GetUsersWithStatusAsync()
     {
-        return await _context.Users.Include(u => u.UserStatus).ToListAsync();
+        return await _context.Users
+            .Include(u => u.UserStatus)
+            .Where(u => u.IsDeleted == false)
+            .ToListAsync();
     }
 
     public async Task<User?> GetUserWithStatusAsync(Guid id)
     {
-        return await _context.Users.Include(u => u.UserStatus).FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users
+            .Include(u => u.UserStatus)
+            .Where(u => u.IsDeleted == false)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
-    public void AddUser(User user)
+    public async void AddUser(User user)
     {
         _context.Users.Add(user);
+    }
+
+    public async Task<bool> IsUsernameExistsAsync(string username)
+    {
+        if (await _context.Users.AnyAsync(u => u.Username == username))
+            return true;
+        return false;
+
+    }
+
+    public async Task<bool> IsEmailExistsAsync(string email)
+    {
+        if (await _context.Users.AnyAsync(u => u.Email == email))
+            return true;
+        return false;
     }
 
     public void UpdateUser(User user) 
@@ -36,7 +57,8 @@ public class UserRepository
     {
         user.IsDeleted = true;
         user.UserStatus.IsDeleted = true;
-
+        foreach(var submission in user.Submissions)
+            submission.IsDeleted = true;
     }
 
     public async Task SaveChangesAsync()

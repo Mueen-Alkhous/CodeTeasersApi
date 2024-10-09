@@ -16,10 +16,10 @@ public class UserService
         var newUser = new User
         {
             Id = commonId,
-            UserStatus = newUserStatus,
             Username = user.Username,
             Email = user.Email,
             Password = user.Password,
+            UserStatus = newUserStatus,
         };
         return newUser;
     }

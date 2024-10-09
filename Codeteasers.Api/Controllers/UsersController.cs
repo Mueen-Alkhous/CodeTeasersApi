@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Entities.Creation;
+using Presentation.Entities.View;
 using Presentation.Services;
 
 namespace Presentation.Controllers
@@ -28,28 +30,49 @@ namespace Presentation.Controllers
 
         // GET: api/users
         [HttpGet]
-        public async Task<ActionResult<List<User>>> Get()
+        public async Task<ActionResult<List<UserForView>>> Get()
         {
-            var allUsers = await _repositoy.GetUsersWithStatusAsync();
-            return Ok(allUsers);
+            var users = await _repositoy.GetUsersWithStatusAsync();
+            var usersForView = _mapper.Map<List<UserForView>>(users);
+            return Ok(usersForView);
         }
 
         // GET: api/users/5
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<User?>> Get(Guid id)
+        public async Task<ActionResult<UserForView?>> Get(Guid id)
         {
-            return await _repositoy.GetUserWithStatusAsync(id);
+            var user =  await _repositoy.GetUserWithStatusAsync(id);
+            if (user == null)
+                return NotFound();
+            var userForView = _mapper.Map<UserForView>(user);
+            return Ok(userForView);
         }
 
         // POST: api/users
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] UserForCreation userForCreation)
         {
+            var usernameExists = await _repositoy.IsUsernameExistsAsync(userForCreation.Username);
+            var emailExists = await _repositoy.IsEmailExistsAsync(userForCreation.Email);
+
+            // if either username or email already taken return a conflict(409) with the proper message
+            if (usernameExists || emailExists)
+            {
+                List<string> errorMessages = [];
+
+                if (usernameExists) 
+                    errorMessages.Add("Username already exists");
+                if (emailExists) 
+                    errorMessages.Add("Email already exists");
+
+                return Conflict(new { errors = errorMessages });
+            }
 
             var newUser = _service.CreateUserWithStatus(userForCreation);
             _repositoy.AddUser(newUser);
             await _repositoy.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = newUser.Id }, newUser);
+            var newUserForView = _mapper.Map<UserForView>(newUser);
+            return CreatedAtAction(nameof(Get), new { id = newUser.Id }, newUserForView);
         }
 
         // PUT api/user/5
@@ -67,6 +90,27 @@ namespace Presentation.Controllers
             _repositoy.UpdateUser(user);
             await _repositoy.SaveChangesAsync();
 
+            return NoContent();
+        }
+
+        // PATCH api/user/5
+        [HttpPatch("{id:guid}")]
+        public async Task<ActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<User> patchDoc)
+        {
+            if (patchDoc == null)
+                return BadRequest();
+
+            var user = await _repositoy.GetUserWithStatusAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            patchDoc.ApplyTo(user, ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _repositoy.SaveChangesAsync();
             return NoContent();
         }
 
