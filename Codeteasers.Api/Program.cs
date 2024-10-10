@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -39,6 +40,11 @@ builder.Services.AddScoped<ProblemRepository>();
 builder.Services.AddScoped<ProblemService>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 2 * 1024 * 1024; // Limit file size to 2 MB sent [FromForm]
+});
 
 var app = builder.Build();
 

@@ -17,7 +17,7 @@ public class ProblemService
     {
         Problem newProblem = new Problem()
         {
-            Level = problem.Level,
+            Level = (Domain.Enums.Levels)problem.Level,
             Score = problem.Score,
             Categories = problem.Categories,
         };
@@ -35,7 +35,7 @@ public class ProblemService
 
         problemToUpdate!.Title = problem.Title;
         problemToUpdate.Score = problem.Score;
-        problemToUpdate.Level = problem.Level;
+        problemToUpdate.Level = (Domain.Enums.Levels)problem.Level;
 
         await System.IO.File.WriteAllTextAsync(problemToUpdate.DescriptionPath, problem.Description);
         await System.IO.File.WriteAllTextAsync(problemToUpdate.TemplatePath, problem.Template);

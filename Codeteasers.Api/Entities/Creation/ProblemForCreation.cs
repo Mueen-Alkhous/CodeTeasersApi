@@ -10,7 +10,7 @@ namespace Presentation.Entities.Creation
         [Required]
         public required int Score { get; set; }
         [Required]
-        public required string Level { get; set; }
+        public required int Level { get; set; }
         [Required]
         public required string Description { get; set; }
         [Required]
