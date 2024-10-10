@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Entities;
 
@@ -21,7 +22,7 @@ public class Problem : BaseEntity
 
 
     [Required]
-    public string Level { get; set; } = string.Empty;
+    public Levels Level { get; set; } = Levels.Easy;
 
     [Required]
     public int Score { get; set; }
@@ -32,10 +33,10 @@ public class Problem : BaseEntity
 
     public Problem()
     {
-        DescriptionPath = $@"D:\CodeTeasers\Problems\Descriptions\{Id}";
+        DescriptionPath = $@"D:\CodeTeasers\Problems\Descriptions\{Id}.md";
 
-        TestPath = $@"D:\CodeTeasers\Problems\Tests\{Id}";
+        TestPath = $@"D:\CodeTeasers\Problems\Tests\{Id}.py";
 
-        TemplatePath = $@"D:\CodeTeasers\Problems\Templates\{Id}";
+        TemplatePath = $@"D:\CodeTeasers\Problems\Templates\{Id}.py";
     }
 }

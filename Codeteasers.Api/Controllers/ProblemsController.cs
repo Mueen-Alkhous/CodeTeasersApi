@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Entities.Creation;
 using Presentation.Entities.View;
@@ -28,7 +29,7 @@ namespace Presentation.Controllers
         public async Task<ActionResult<List<Problem>>> Get()
         {
             var problems = await _repository.GetProblemsWithCategoryAsync();
-            var problemsToReture = _mapper.Map<ProblemForView>(problems);
+            var problemsToReture = _mapper.Map<List<ProblemForView>>(problems);
             return Ok(problemsToReture);
         }
 
@@ -49,10 +50,13 @@ namespace Presentation.Controllers
         {
             var newProblem = await _service.CreateProblemAsync(problem);
 
+            _repository.AddProblem(newProblem);
+
+            await _repository.SaveChangesAsync();
+
             var problemToReturn = _mapper.Map<ProblemForView>(newProblem);
 
             return CreatedAtAction(nameof(Get), new { id = newProblem.Id }, problemToReturn);
-
         }
 
         [HttpPut("{id:guid}")]
@@ -70,6 +74,24 @@ namespace Presentation.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:guid}")]
+        public async Task<ActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<Problem> patchDoc)
+        {
+            if (patchDoc == null)
+                return BadRequest();
+
+            var problem = await _repository.GetProblemWithCategoryAsync(id);
+            if (problem == null)
+                return NotFound();
+
+            patchDoc.ApplyTo(problem, ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _repository.SaveChangesAsync();
+            return NoContent();
+        }
+
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete(Guid id)
         {
@@ -78,7 +100,7 @@ namespace Presentation.Controllers
             if (problem == null) 
                 return NotFound();
 
-            _repository.RemoveProblem(problem);
+            _repository.DeleteProblem(problem);
 
             await _repository.SaveChangesAsync();
 

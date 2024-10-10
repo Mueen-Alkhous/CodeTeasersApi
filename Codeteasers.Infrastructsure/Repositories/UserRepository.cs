@@ -12,6 +12,11 @@ public class UserRepository
         _context = context;
     }
 
+
+    /// <summary>
+    /// Asynchronously return all users with thier status 
+    /// </summary>
+    /// <returns>List of users</returns>
     public async Task<List<User>> GetUsersWithStatusAsync()
     {
         return await _context.Users
@@ -19,6 +24,11 @@ public class UserRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Asynchronously return a user with status
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public async Task<User?> GetUserWithStatusAsync(Guid id)
     {
         return await _context.Users

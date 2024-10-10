@@ -40,6 +40,8 @@ public class ProblemService
         await System.IO.File.WriteAllTextAsync(problemToUpdate.DescriptionPath, problem.Description);
         await System.IO.File.WriteAllTextAsync(problemToUpdate.TemplatePath, problem.Template);
         await System.IO.File.WriteAllTextAsync(problemToUpdate.TestPath, problem.Test);
+
+        _repository.UpdateProblem(problemToUpdate);
     }
 
 }

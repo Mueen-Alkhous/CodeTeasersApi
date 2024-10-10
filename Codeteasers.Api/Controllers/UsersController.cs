@@ -52,6 +52,7 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] UserForCreation userForCreation)
         {
+            // Check if the username or email already taken
             var usernameExists = await _repositoy.IsUsernameExistsAsync(userForCreation.Username);
             var emailExists = await _repositoy.IsEmailExistsAsync(userForCreation.Email);
 
