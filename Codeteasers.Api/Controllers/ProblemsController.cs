@@ -75,13 +75,10 @@ namespace Presentation.Controllers
         {
             var problem = await _repository.GetProblemWithCategoryAsync(id);
 
-            if (problem == null)
+            if (problem == null) 
                 return NotFound();
 
-            problem.IsDeleted = true;
-
-            foreach (var submission in problem.Submissions)
-                submission.IsDeleted = true;
+            _repository.RemoveProblem(problem);
 
             await _repository.SaveChangesAsync();
 

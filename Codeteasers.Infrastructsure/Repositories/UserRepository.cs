@@ -16,7 +16,6 @@ public class UserRepository
     {
         return await _context.Users
             .Include(u => u.UserStatus)
-            .Where(u => u.IsDeleted == false)
             .ToListAsync();
     }
 
@@ -24,11 +23,10 @@ public class UserRepository
     {
         return await _context.Users
             .Include(u => u.UserStatus)
-            .Where(u => u.IsDeleted == false)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
-    public async void AddUser(User user)
+    public void AddUser(User user)
     {
         _context.Users.Add(user);
     }
@@ -55,10 +53,7 @@ public class UserRepository
 
     public void DeleteUser(User user)
     {
-        user.IsDeleted = true;
-        user.UserStatus.IsDeleted = true;
-        foreach(var submission in user.Submissions)
-            submission.IsDeleted = true;
+        _context.Users.Remove(user);
     }
 
     public async Task SaveChangesAsync()

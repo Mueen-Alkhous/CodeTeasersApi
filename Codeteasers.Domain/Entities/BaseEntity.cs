@@ -9,8 +9,4 @@ public class BaseEntity
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    [Required]
-    public bool IsDeleted { get; set; } = false;
-
 }

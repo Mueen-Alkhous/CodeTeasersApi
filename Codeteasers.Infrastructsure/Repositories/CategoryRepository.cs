@@ -13,15 +13,12 @@ public class CategoryRepository
 
     public async Task<List<Category>> GetAllAsync()
     {
-        return await _context.Categories.Where(c => c.IsDeleted == false).ToListAsync();
+        return await _context.Categories.ToListAsync();
     }
 
     public async Task<Category?> GetByIdAsync(Guid id)
     {
-        var category = await _context.Categories.FindAsync(id);
-        if (category.IsDeleted == false)
-            return category;
-        return null;
+        return await _context.Categories.FindAsync(id);
     }
 
     public void AddCategory(Category category)
@@ -31,7 +28,7 @@ public class CategoryRepository
 
     public void DeleteCategory(Category category)
     {
-        category.IsDeleted = true;
+        _context.Categories.Remove(category);
         
     }
 

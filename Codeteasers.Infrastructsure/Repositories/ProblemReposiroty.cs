@@ -26,6 +26,11 @@ public class ProblemRepository
         problem.Categories.AddRange(categories);
     }
 
+    public void RemoveProblem(Problem problem)
+    {
+        _context.Problems.Remove(problem);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
