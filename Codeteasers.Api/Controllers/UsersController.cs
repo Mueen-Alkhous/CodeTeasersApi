@@ -41,7 +41,7 @@ namespace Presentation.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<UserForView?>> Get(Guid id)
         {
-            var user =  await _repositoy.GetUserWithStatusAsync(id);
+            var user =  await _repositoy.GetByIdAsync(id);
             if (user == null)
                 return NotFound();
             var userForView = _mapper.Map<UserForView>(user);
@@ -53,8 +53,8 @@ namespace Presentation.Controllers
         public async Task<ActionResult> Post([FromBody] UserForCreation userForCreation)
         {
             // Check if the username or email already taken
-            var usernameExists = await _repositoy.IsUsernameExistsAsync(userForCreation.Username);
-            var emailExists = await _repositoy.IsEmailExistsAsync(userForCreation.Email);
+            var usernameExists = await _repositoy.DoesUserExistAsync(userForCreation.Username);
+            var emailExists = await _repositoy.DoesEmailExistAsync(userForCreation.Email);
 
             // if either username or email already taken return a conflict(409) with the proper message
             if (usernameExists || emailExists)
@@ -80,7 +80,7 @@ namespace Presentation.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Put(Guid id, [FromBody] UserForCreation userForCreation)
         {
-            var user = await _repositoy.GetUserWithStatusAsync(id);
+            var user = await _repositoy.GetByIdAsync(id);
 
             if (user == null)
                 return NotFound();
@@ -88,7 +88,7 @@ namespace Presentation.Controllers
             user.Username = userForCreation.Username;
             user.Password = userForCreation.Password;
             user.Email = userForCreation.Email;
-            _repositoy.UpdateUser(user);
+            _repositoy.Update(user);
             await _repositoy.SaveChangesAsync();
 
             return NoContent();
@@ -101,7 +101,7 @@ namespace Presentation.Controllers
             if (patchDoc == null)
                 return BadRequest();
 
-            var user = await _repositoy.GetUserWithStatusAsync(id);
+            var user = await _repositoy.GetByIdAsync(id);
 
             if (user == null)
                 return NotFound();
@@ -119,12 +119,12 @@ namespace Presentation.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var user = await _repositoy.GetUserWithStatusAsync(id);
+            var user = await _repositoy.GetByIdAsync(id);
 
             if (user == null)
                 return NotFound();
 
-            _repositoy.DeleteUser(user);
+            _repositoy.Delete(user);
             await _repositoy.SaveChangesAsync();
             return NoContent();
         }

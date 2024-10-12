@@ -6,12 +6,15 @@ namespace Domain.Entities;
 public class User : BaseEntity
 {
 
-    [NotMapped]
-    public UserStatus UserStatus { get; set; } = null!;
+    
 
     [Required]
     [MaxLength(50)]
     public string Username { get; set; } = null!;
+
+    [Required]
+    [MaxLength(50)]
+    public string NormalizedUsername { get; set; } = null!;
 
     [Required]
     [MaxLength(100)]
@@ -24,10 +27,27 @@ public class User : BaseEntity
     [DataType(DataType.Password)]
     public string Password { get; set; } = null!;
 
+    [NotMapped]
+    public UserStatus UserStatus { get; set; } = null!;
+
     public ICollection<Submission> Submissions { get; set; } = [];
 
     public User()
     {
-        var userStatus = new UserStatus();
+    }
+
+    public User(string username, string email, string password)
+    {
+        Username = username;
+        NormalizedUsername = NormalizeUsername(username);
+        Email = email;
+        Password = password;
+        UserStatus = new UserStatus();
+    }
+
+    private static string NormalizeUsername(string username)
+    {
+        var normalizedTitle = username.ToLower().Replace(" ", "_").Trim();
+        return normalizedTitle;
     }
 }

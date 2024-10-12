@@ -26,14 +26,22 @@ public class AppDbContext : DbContext
                     .HasIndex(p => p.Title)
                     .IsUnique();
 
+        modelBuilder.Entity<Problem>()
+                    .HasIndex(p => p.NormalizedTitle)
+                    .IsUnique();
+
         // Make the username of users unique
         modelBuilder.Entity<User>()
-                    .HasIndex(p => p.Username)
+                    .HasIndex(u => u.Username)
+                    .IsUnique();
+        
+        modelBuilder.Entity<User>()
+                    .HasIndex(u => u.NormalizedUsername)
                     .IsUnique();
 
         // Make the email of users unique
         modelBuilder.Entity<User>()
-                    .HasIndex(p => p.Email)
+                    .HasIndex(u => u.Email)
                     .IsUnique();
     }
 }
