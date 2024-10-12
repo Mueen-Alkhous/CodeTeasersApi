@@ -17,7 +17,9 @@ public class CategoryRepository
     /// <returns>List<Category></returns>
     public async Task<List<Category>> GetAllAsync()
     {
-        return await _context.Categories.ToListAsync();
+        return await _context.Categories
+            .Include(c => c.Problems)
+            .ToListAsync();
     }
 
 
@@ -32,10 +34,20 @@ public class CategoryRepository
     }
 
     /// <summary>
+    /// Asynchronously return a category by its normalized title
+    /// </summary>
+    /// <param name="title">The normalized title of the category to be returned</param>
+    /// <returns>Category if found, and null if not</returns>
+    public async Task<Category?> GetByTitleAsync(string title)
+    {
+        return await _context.Categories.FirstOrDefaultAsync(c => c.NormalizedTitle == title);
+    }
+
+    /// <summary>
     /// Add a catetory to the database
     /// </summary>
     /// <param name="category">The category to be added</param>
-    public void AddCategory(Category category)
+    public void Add(Category category)
     {
         _context.Categories.Add(category);
     }
@@ -44,7 +56,7 @@ public class CategoryRepository
     /// Remove a category from the database
     /// </summary>
     /// <param name="category">The category to be deleted</param>
-    public void DeleteCategory(Category category)
+    public void Delete(Category category)
     {
         _context.Categories.Remove(category);
         

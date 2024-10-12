@@ -28,59 +28,99 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Problem>>> Get()
         {
-            var problems = await _repository.GetProblemsWithCategoryAsync();
+
+            var problems = await _repository.GetAllAsync();
             var problemsToReture = _mapper.Map<List<ProblemForView>>(problems);
             return Ok(problemsToReture);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<Problem>> Get(Guid id)
+        
+
+        [HttpGet("{title}")]
+        public async Task<ActionResult<Problem>> Get(string title)
         {
-            var problem = await _repository.GetProblemWithCategoryAsync(id);
+            var problem = await _repository.GetByTitleAsync(title);
 
             if (problem == null)
                 return NotFound();
 
             var problemToReturn = _mapper.Map<ProblemForView>(problem);
+
             return Ok(problemToReturn);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ProblemForCreation problem)
+        [HttpGet("{title}/downloadFile/{fileType}")]
+        public async Task<IActionResult> DownloadFile(string title, string fileType)
         {
+            var problem = await _repository.GetByTitleAsync(title);
+
+            if (problem == null)
+                return NotFound();
+
+            if (fileType == null)
+                return BadRequest();
+
+            else if (fileType == "description")
+                return PhysicalFile(problem.DescriptionPath, "text/markdown", Path.GetFileName(problem.DescriptionPath));
+
+            else if (fileType == "template")
+                return PhysicalFile(problem.TemplatePath, "text/x-python", Path.GetFileName(problem.TemplatePath));
+            else
+                return PhysicalFile(problem.TestPath, "text/x-python", Path.GetFileName(problem.TestPath));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromForm] ProblemForCreation problem)
+        {
+            var checkProblemValid = _service.CheckValidation(problem);
+
+            if (checkProblemValid.Count > 0)
+                return BadRequest(checkProblemValid);
+
             var newProblem = await _service.CreateProblemAsync(problem);
 
-            _repository.AddProblem(newProblem);
+            _repository.Add(newProblem);
 
             await _repository.SaveChangesAsync();
 
             var problemToReturn = _mapper.Map<ProblemForView>(newProblem);
 
-            return CreatedAtAction(nameof(Get), new { id = newProblem.Id }, problemToReturn);
+            var descriptionUrl = Url.Action("DownloadFile", new { normalizedTitle = newProblem.NormalizedTitle, fileType = "description" });
+
+            var templateUrl = Url.Action("DownloadFile", new { normalizedTitle = newProblem.NormalizedTitle, fileType = "template" });
+
+            var testUrl = Url.Action("DownloadFile", new { normalizedTitle = newProblem.NormalizedTitle, fileType = "test" });
+
+            problemToReturn.DescriptionUrl = descriptionUrl!;
+            problemToReturn.TemplateUrl = templateUrl!;
+            problemToReturn.TestUrl = testUrl!;
+
+
+            return CreatedAtAction(nameof(Get), new { normalizedTitle = newProblem.NormalizedTitle }, problemToReturn);
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Put(Guid id, [FromBody] ProblemForCreation problem)
+        [HttpPut("{title}")]
+        public async Task<ActionResult> Put(string title, [FromBody] ProblemForCreation problem)
         {
-            var problemToUpdate = await _repository.GetProblemWithCategoryAsync(id);
+            var problemToUpdate = await _repository.GetByTitleAsync(title);
 
             if (problemToUpdate == null)
                 return NotFound();
 
-            await _service.UpdateProblemAsync(id, problem);
+            await _service.UpdateProblemAsync(problemToUpdate.Id, problem);
 
             await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
-        [HttpPatch("{id:guid}")]
-        public async Task<ActionResult> Patch(Guid id, [FromBody] JsonPatchDocument<Problem> patchDoc)
+        [HttpPatch("{title}")]
+        public async Task<ActionResult> Patch(string title, [FromBody] JsonPatchDocument<Problem> patchDoc)
         {
             if (patchDoc == null)
                 return BadRequest();
 
-            var problem = await _repository.GetProblemWithCategoryAsync(id);
+            var problem = await _repository.GetByTitleAsync(title);
             if (problem == null)
                 return NotFound();
 
@@ -92,15 +132,15 @@ namespace Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<ActionResult> Delete(Guid id)
+        [HttpDelete("{title}")]
+        public async Task<ActionResult> Delete(string title)
         {
-            var problem = await _repository.GetProblemWithCategoryAsync(id);
+            var problem = await _repository.GetByTitleAsync(title);
 
             if (problem == null) 
                 return NotFound();
 
-            _repository.DeleteProblem(problem);
+            _repository.Delete(problem);
 
             await _repository.SaveChangesAsync();
 

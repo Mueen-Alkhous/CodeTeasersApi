@@ -7,18 +7,21 @@ namespace Presentation.Entities.Creation
     {
         [Required]
         public required string Title { get; set; }
+
         [Required]
         public required int Score { get; set; }
+
         [Required]
-        public required int Level { get; set; }
+        public required string Level { get; set; }
+
         [Required]
-        public required string Description { get; set; }
+        public required IFormFile Description { get; set; }
         [Required]
-        public required string Template { get; set; }
+        public required IFormFile Template { get; set; }
         [Required]
-        public required string Test { get; set; }
-        [Required]
-        public required List<Category> Categories { get; set; }
+        public required IFormFile Test { get; set; }
+
+        public List<string> Categories { get; set; } = [];
 
     }
 }

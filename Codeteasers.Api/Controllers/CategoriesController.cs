@@ -1,6 +1,8 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.Entities.View;
 
 
 namespace Presentation.Controllers;
@@ -12,43 +14,54 @@ public class CategoriesController : ControllerBase
 {
 
     private readonly CategoryRepository _repository;
-    public CategoriesController(CategoryRepository repository)
+    private readonly IMapper _mapper;
+    public CategoriesController(CategoryRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Category>>> Get()
+    public async Task<ActionResult<List<CategoryForView>>> Get()
     {
         var categories = await _repository.GetAllAsync();
-        return Ok(categories);
+        var categoriesToReturn = _mapper.Map<List<CategoryForView>>(categories);
+        return Ok(categoriesToReturn);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Category>> Get(Guid id)
+    [HttpGet("{title}")]
+    public async Task<ActionResult<CategoryForView>> Get(string title)
     {
-        var category = await _repository.GetByIdAsync(id);
+        var category = await _repository.GetByTitleAsync(title);
+
         if (category == null)
             return NotFound();
-        return Ok(category);
+
+        var categoryToReturn = _mapper.Map<CategoryForView>(category);
+
+        return Ok(categoryToReturn);
     }
 
-    [HttpPost]
-    public async Task<ActionResult> Post([FromBody] string title)
+    [HttpPost("{title}")]
+    public async Task<ActionResult> Post(string title)
     {
-        var category = new Category { Title = title };
-        _repository.AddCategory(category);
+        var category = new Category(title);
+
+        var categoryToReturn = _mapper.Map<CategoryForView>(category);
+        _repository.Add(category);
         await _repository.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = category.Id }, category);
+        return CreatedAtAction(nameof(Get), new { normalizedTilte = category.NormalizedTitle }, categoryToReturn);
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpDelete("{title}")]
+    public async Task<ActionResult> Delete(string title)
     {
-        var category = await _repository.GetByIdAsync(id);
+        var category = await _repository.GetByTitleAsync(title);
+
         if (category == null)
             return NotFound();
-        _repository.DeleteCategory(category);
+
+        _repository.Delete(category);
         await _repository.SaveChangesAsync();
         return NoContent();
     }

@@ -16,7 +16,7 @@ public class ProblemRepository
     /// Asynchronously return a list of problems with thier categories
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Problem>> GetProblemsWithCategoryAsync()
+    public async Task<List<Problem>> GetAllAsync()
     {
         return await _context.Problems
             .Include(p => p.Categories)
@@ -28,7 +28,7 @@ public class ProblemRepository
     /// </summary>
     /// <param name="id">The id of the problem to be returned</param>
     /// <returns>Problem with its categories</returns>
-    public async Task<Problem?> GetProblemWithCategoryAsync(Guid id)
+    public async Task<Problem?> GetByIdAsync(Guid id)
     {
         return await _context.Problems
             .Include(p => p.Categories)
@@ -36,10 +36,22 @@ public class ProblemRepository
     }
 
     /// <summary>
+    /// Asynchronously return a problem by its normalized title
+    /// </summary>
+    /// <param name="normalizedTitle">The normalized title of the problem to be returned</param>
+    /// <returns>Returns a problem with its categories</returns>
+    public async Task<Problem?> GetByTitleAsync(string normalizedTitle)
+    {
+        return await _context.Problems
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.NormalizedTitle == normalizedTitle);
+    }
+
+    /// <summary>
     /// Add a problem to the database
     /// </summary>
     /// <param name="problem">The problem to be added</param>
-    public void AddProblem(Problem problem) 
+    public void Add(Problem problem) 
     {
         _context.Problems.Add(problem);
     }
@@ -58,7 +70,7 @@ public class ProblemRepository
     /// Update a problem in the database
     /// </summary>
     /// <param name="problem">The problem to be updated</param>
-    public void UpdateProblem(Problem problem)
+    public void Update(Problem problem)
     {
         _context.Problems.Update(problem);
     }
@@ -67,8 +79,11 @@ public class ProblemRepository
     /// Remove a problem from the database
     /// </summary>
     /// <param name="problem">The problem to be removed</param>
-    public void DeleteProblem(Problem problem)
+    public void Delete(Problem problem)
     {
+        System.IO.File.Delete(problem.DescriptionPath);
+        System.IO.File.Delete(problem.TestPath);
+        System.IO.File.Delete(problem.TemplatePath);
         _context.Problems.Remove(problem);
     }
 

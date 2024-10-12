@@ -38,6 +38,7 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProblemRepository>();
 builder.Services.AddScoped<ProblemService>();
+builder.Services.AddScoped<CategoryRepository>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
