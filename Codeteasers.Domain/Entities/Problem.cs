@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities;
 
@@ -36,6 +37,9 @@ public class Problem : BaseEntity
     [Required]
     public int Score { get; set; }
 
+    [NotMapped]
+    public string RootPath { get; set; } = string.Empty;
+
     public List<Submission> Submissions { get; set; } = [];
 
     public List<Category> Categories { get; set; } = [];
@@ -44,33 +48,32 @@ public class Problem : BaseEntity
     {
         NormalizedTitle = NormalizeTitle(Title);
 
-        DescriptionPath = $@"D:\CodeTeasers\Problems\Descriptions\{NormalizedTitle}_description.md";
-
-        TestPath = $@"D:\CodeTeasers\Problems\Tests\{NormalizedTitle}_test.py";
-
-        TemplatePath = $@"D:\CodeTeasers\Problems\Templates\{NormalizedTitle}_template.py";
+        DescriptionPath = Path.Combine(RootPath, "Descriptions", $"{NormalizedTitle}_description.md");
+        TemplatePath = Path.Combine(RootPath, "Templates", $"{NormalizedTitle}_template.md");
+        TestPath = Path.Combine(RootPath, "Tests", $"{NormalizedTitle}_test.md");
 
         DescriptionUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/description";
         TestUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/test";
         TemplateUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/template";
     }
 
-    public Problem(string title, int score, string level, List<Category> categories)
+    public Problem(string title, int score, string level, List<Category> categories, string rootPath)
     {
         this.Title = title; 
         this.Score = score;
         this.Level = level;
+        this.RootPath = rootPath;
         this.Categories = categories;
         NormalizedTitle = NormalizeTitle(Title);
-        DescriptionPath = $@"D:\CodeTeasers\Problems\Descriptions\{NormalizedTitle}_description.md";
-        TestPath = $@"D:\CodeTeasers\Problems\Tests\{NormalizedTitle}_test.py";
-        TemplatePath = $@"D:\CodeTeasers\Problems\Templates\{NormalizedTitle}_template.py";
+        DescriptionPath = Path.Combine(rootPath, "Descriptions", $"{NormalizedTitle}_description.md");
+        TemplatePath = Path.Combine(rootPath, "Templates", $"{NormalizedTitle}_template.md");
+        TestPath = Path.Combine(rootPath, "Tests", $"{NormalizedTitle}_test.md");
         DescriptionUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/description";
         TestUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/test";
         TemplateUrl = $"/api/Problems/{NormalizedTitle}/downloadFile/template";
     }
 
-    private string NormalizeTitle(string title)
+    private static string NormalizeTitle(string title)
     {
         var normalizedTitle = title.ToLower().Replace(" ", "_").Trim();
         return normalizedTitle;

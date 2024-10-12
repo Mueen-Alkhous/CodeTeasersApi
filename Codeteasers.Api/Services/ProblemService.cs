@@ -56,7 +56,14 @@ public class ProblemService
             categories.Add((await _categoryRepository.GetByTitleAsync(categoryTitle))!);
         }
 
-        var newProblem = new Problem(problem.Title, problem.Score, problem.Level, categories);
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+        var newProblem = new Problem(
+            problem.Title, 
+            problem.Score, 
+            problem.Level, 
+            categories, 
+            path);
 
         using (var stream = new FileStream(newProblem.DescriptionPath, FileMode.Create))
         {
