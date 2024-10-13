@@ -25,6 +25,15 @@ builder.Services.AddControllers(options =>
                 })
                 .AddXmlSerializerFormatters();
 
+builder.Services.AddCors( options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyHeader();
+        builder.AllowAnyMethod();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -56,6 +65,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
 }
+app.UseCors();
 
 app.UseHttpsRedirection();
 
