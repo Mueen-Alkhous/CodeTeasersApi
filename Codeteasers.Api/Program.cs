@@ -27,10 +27,10 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddCors( options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy("AllowAll",builder =>
     {
-        builder.AllowAnyHeader();
-        builder.AllowAnyMethod();
+        builder.AllowAnyOrigin()
+        .AllowAnyMethod().AllowAnyHeader();
     });
 });
 
@@ -58,6 +58,7 @@ builder.Services.Configure<FormOptions>(options =>
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -65,7 +66,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
 }
-app.UseCors();
 
 app.UseHttpsRedirection();
 
